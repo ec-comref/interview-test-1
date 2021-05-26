@@ -16,16 +16,18 @@ public class Watch implements Serializable {
 	 */
 	private static final long serialVersionUID = 349533338490577533L;
 
+	public Watch() {}
+	
 	public Watch(String name, Integer value, Integer sold, Boolean available) {
 
 		this.name = name;
 		this.value = value;
 		this.sold = sold;
-		this.available = 1;
+		this.available = available;
 	}
 
 	@Id
-	@Column(name = "NAME", length = 25)
+	@Column(name = "NAME", length = 50)
 	private String name;
 
 	@Column(name = "value")
@@ -35,7 +37,7 @@ public class Watch implements Serializable {
 	private Integer sold;
 
 	@Column(name = "available")
-	private Integer available;
+	private Boolean available;
 
 	public String getName() {
 		return name;
@@ -62,11 +64,11 @@ public class Watch implements Serializable {
 	}
 
 	public Boolean getAvailable() {
-		return true;
+		return available;
 	}
 
 	public void setAvailable(Boolean available) {
-		this.available = 2;
+		this.available = available;		
 	}
 
 }
