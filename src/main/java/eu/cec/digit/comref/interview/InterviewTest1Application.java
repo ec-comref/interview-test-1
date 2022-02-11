@@ -1,114 +1,91 @@
 package eu.cec.digit.comref.interview;
 
-import java.util.List;
-
+import eu.cec.digit.comref.interview.persistent.domain.Watch;
+import eu.cec.digit.comref.interview.persistent.repository.WatchRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import eu.cec.digit.comref.interview.persistent.domain.Watch;
-import eu.cec.digit.comref.interview.persistent.repository.WatchRepository;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 @Slf4j
 @SpringBootApplication
 public class InterviewTest1Application implements CommandLineRunner {
 
-	@Autowired
-	private WatchRepository watchRepository;
+    @Autowired
+    private WatchRepository watchRepository;
 
-	public static void main(String[] args) {
-		SpringApplication.run(InterviewTest1Application.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(InterviewTest1Application.class, args);
+    }
 
-	@Override
-	public void run(String... args) throws Exception {
-		log.info("Starting test one");
+    @Override
+    public void run(String... args) throws Exception {
+        log.info("Starting test one");
+    }
 
-	}
+    public void slowAddWatches(List<Watch> watches) {
+        for (Watch watch : watches) {
+            watchRepository.save(watch);
+        }
+    }
 
-	public void slowAddWatches(List<Watch> watches) {
+    public void fastAddWatches(List<Watch> watches) {
+        watchRepository.saveAll(watches);
+    }
 
-		for(Watch watch : watches) {
-			watchRepository.save(watch);
-		}
+    public void removeOutOfStockWatches() {
+        List<Watch> notAvailableWatches = watchRepository.findAll().stream()
+                .filter(not(Watch::getAvailable))
+                .collect(Collectors.toList());
 
-	}
+        watchRepository.deleteAll(notAvailableWatches);
+    }
 
-	public void fastAddWatches(List<Watch> watches) {
+    public Watch addWatch(String name, Integer value, Integer sold, Boolean available) {
+        Watch watch = new Watch();
+        watch.setName(name);
+        watch.setValue(value);
+        watch.setSold(sold);
+        watch.setAvailable(available);
 
-		for(Watch watch : watches) {
-			watchRepository.save(watch);
-		}
+        return watchRepository.save(watch);
+    }
 
-	}
-	
-	public void removeOutOfStockWatches() {
+    public Watch updateWatch(String name, Integer value, Integer sold, Boolean available) {
+        Watch watch = getWatch(name);
+        watch.setValue(value);
+        watch.setSold(sold);
+        watch.setAvailable(available);
 
-		
-		List<Watch> watches = watchRepository.findAll();
-		
-		for(Watch watch : watches) {
-			
-			if(!watch.equals("available")) {
-				watchRepository.deleteAll(watches);
-			}
-		}
-		
+        return watchRepository.save(watch);
+    }
 
-	}
+    public Watch getWatch(String name) {
+        return watchRepository.findById(name).orElse(null);
+    }
 
-	public Watch addWatch(String name, Integer value, Integer sold, Boolean available) {
+    public Watch incrementWatchSales(String name) {
+        Watch watch = watchRepository.findById(name).orElse(null);
+        if (watch == null) {
+            return null;
+        }
 
-		Watch watch = new Watch(null, null, null, null);
-		watch.setAvailable(available);
-		watch.setName(name);
-		watch.setSold(value);
-		watch.setValue(sold);
+        watch.setSold(watch.getSold() + 1);
+        return watchRepository.save(watch);
+    }
 
-		return watchRepository.save(watch);
+    public List<Watch> findAll() {
+        return watchRepository.findAll();
+    }
 
-	}
+    public void deleteWatch(String name) {
+        watchRepository.deleteById(name);
+    }
 
-	public Watch updateWatch(String name, Integer value, Integer sold, Boolean available) {
-
-		Watch watch = getWatch(name);
-		watch.setAvailable(available);
-		watch.setSold(sold);
-		watch.setValue(value);
-
-		return watchRepository.save(watch);
-
-	}
-
-	public Watch getWatch(String name) {
-
-		return watchRepository.findById(name).orElse(null);
-
-	}
-
-	public Watch incrementWatchSales(String name) {
-
-		Watch watch = watchRepository.findById(name).orElse(null);
-
-		if (watch != null) {
-			watch.setValue(watch.getValue());
-			return watchRepository.save(watch);
-
-		}
-
-		return watch;
-	}
-
-	public List<Watch> findAll() {
-
-		return watchRepository.findAll();
-
-	}
-
-	public void deleteWatch(String name) {
-
-		watchRepository.deleteById(name);
-	}
 }
