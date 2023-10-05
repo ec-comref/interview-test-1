@@ -38,9 +38,7 @@ public class InterviewTest1Application implements CommandLineRunner {
 
 	public void fastAddWatches(List<Watch> watches) {
 
-		for(Watch watch : watches) {
-			watchRepository.save(watch);
-		}
+		watchRepository.saveAll(watches);
 
 	}
 	
