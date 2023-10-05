@@ -50,9 +50,8 @@ public class InterviewTest1Application implements CommandLineRunner {
 		List<Watch> watches = watchRepository.findAll();
 		
 		for(Watch watch : watches) {
-			
-			if(!watch.equals("available")) {
-				watchRepository.deleteAll(watches);
+			if (!watch.getAvailable()) {
+				watchRepository.delete(watch);
 			}
 		}
 		
@@ -64,8 +63,8 @@ public class InterviewTest1Application implements CommandLineRunner {
 		Watch watch = new Watch(null, null, null, null);
 		watch.setAvailable(available);
 		watch.setName(name);
-		watch.setSold(value);
-		watch.setValue(sold);
+		watch.setSold(sold);
+		watch.setValue(value);
 
 		return watchRepository.save(watch);
 
@@ -93,9 +92,8 @@ public class InterviewTest1Application implements CommandLineRunner {
 		Watch watch = watchRepository.findById(name).orElse(null);
 
 		if (watch != null) {
-			watch.setValue(watch.getValue());
+			watch.setSold(watch.getSold() + 1);
 			return watchRepository.save(watch);
-
 		}
 
 		return watch;
